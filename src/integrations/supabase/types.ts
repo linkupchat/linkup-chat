@@ -253,6 +253,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_friend_request: { Args: { request_id: string }; Returns: Json }
       generate_join_code: { Args: never; Returns: string }
     }
     Enums: {
