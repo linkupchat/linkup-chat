@@ -171,66 +171,23 @@ export const useFriendRequests = () => {
     return { error: null };
   };
 
-  // Accept a friend request
+  // Accept a friend request using the database function
   const acceptRequest = async (requestId: string): Promise<{ error: string | null }> => {
     if (!user) return { error: 'Not authenticated' };
 
-    // Get the request details
-    const { data: request, error: fetchError } = await supabase
-      .from('friend_requests')
-      .select('*')
-      .eq('id', requestId)
-      .single();
+    // Call the database function that handles everything with proper permissions
+    const { data, error } = await supabase
+      .rpc('accept_friend_request', { request_id: requestId });
 
-    if (fetchError || !request) {
-      return { error: 'Request not found' };
-    }
-
-    if (request.receiver_id !== user.id) {
-      return { error: 'You can only accept requests sent to you' };
-    }
-
-    if (request.status !== 'pending') {
-      return { error: 'This request has already been processed' };
-    }
-
-    // Update request status to accepted
-    const { error: updateError } = await supabase
-      .from('friend_requests')
-      .update({ status: 'accepted' })
-      .eq('id', requestId);
-
-    if (updateError) {
-      console.error('Error updating request:', updateError);
+    if (error) {
+      console.error('Error accepting friend request:', error);
       return { error: 'Failed to accept request' };
     }
 
-    // Create bidirectional connections
-    const { error: conn1Error } = await supabase
-      .from('connections')
-      .insert({ user_id: user.id, friend_id: request.sender_id });
-
-    if (conn1Error && !conn1Error.message.includes('duplicate')) {
-      console.error('Error creating connection 1:', conn1Error);
-    }
-
-    const { error: conn2Error } = await supabase
-      .from('connections')
-      .insert({ user_id: request.sender_id, friend_id: user.id });
-
-    if (conn2Error && !conn2Error.message.includes('duplicate')) {
-      console.error('Error creating connection 2:', conn2Error);
-    }
-
-    // Create a chat between the two users
-    const [user1, user2] = [user.id, request.sender_id].sort();
+    const result = data as { success: boolean; error?: string; chat_id?: string } | null;
     
-    const { error: chatError } = await supabase
-      .from('chats')
-      .insert({ user1_id: user1, user2_id: user2 });
-
-    if (chatError && !chatError.message.includes('duplicate')) {
-      console.error('Error creating chat:', chatError);
+    if (result && !result.success) {
+      return { error: result.error || 'Failed to accept request' };
     }
 
     await fetchRequests();
