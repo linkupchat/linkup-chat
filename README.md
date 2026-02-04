@@ -1,73 +1,75 @@
-# Welcome to your Lovable project
+# Welcome to your LinkUP
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
 
-## How can I edit this code?
+🚀 LinkUp — Real-Time Chat App with Friend Code System
 
-There are several ways of editing your application.
+LinkUp is a modern, fully real-time web chat application that allows users to connect and chat instantly using a unique Join Code system—no phone numbers or emails required to add friends.
 
-**Use Lovable**
+The app is built with a WhatsApp-like user experience, focusing on speed, simplicity, and real-time interaction.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+✨ Features
 
-Changes made via Lovable will be committed automatically to this repo.
+🔐 Secure Authentication (Email & Password)
 
-**Use your preferred IDE**
+👤 Mandatory Profile Setup
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Name required
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Profile photo optional (default avatar supported)
 
-Follow these steps:
+🔑 Unique Join Code
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Automatically generated for each user
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Add friends by entering their Join Code
 
-# Step 3: Install the necessary dependencies.
-npm i
+💬 Real-Time 1-to-1 Chat
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+Instant message delivery
 
-**Edit a file directly in GitHub**
+No page refresh required
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+✍️ Typing Indicators
 
-**Use GitHub Codespaces**
+🟢 Online / Offline Status & Last Seen
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+🔔 Real-Time Push Notifications
 
-## What technologies are used for this project?
+Popup notifications on mobile
 
-This project is built with:
+Custom LinkUp notification sound
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Opens directly to the chat on tap
 
-## How can I deploy this project?
+🖼️ Profile Photo Visibility
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+Shown in chat header and chat list (like WhatsApp)
 
-## Can I connect a custom domain to my Lovable project?
+📱 Responsive UI
 
-Yes, you can!
+Works on mobile and desktop
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+🛠️ Tech Stack
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Frontend: Modern Web Framework (Lovable-generated)
+
+Backend: Firebase / Supabase
+
+Realtime: Firestore listeners / Realtime subscriptions
+
+Notifications: Firebase Cloud Messaging (FCM)
+
+Deployment: Vercel / Firebase Hosting
+
+🎯 Project Goal
+
+To build a simple, fast, and secure chat app where users can connect instantly using invite codes, with real-time messaging, presence detection, and push notifications—without relying on phone numbers.
+
+📌 Status
+
+✅ Actively developed
+✅ Real-time features implemented
+🚀 Production-ready & deployable
