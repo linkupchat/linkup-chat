@@ -1,14 +1,33 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { AuthForm } from '@/components/auth/AuthForm';
+import { ProfileSetup } from '@/components/profile/ProfileSetup';
+import Chat from './Chat';
+import { Loader2 } from 'lucide-react';
 
-const Index = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+const Index: React.FC = () => {
+  const { user, profile, loading, needsProfileSetup } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
-    </div>
-  );
+    );
+  }
+
+  // Not logged in
+  if (!user) {
+    return <AuthForm />;
+  }
+
+  // Needs profile setup
+  if (needsProfileSetup) {
+    return <ProfileSetup />;
+  }
+
+  // Main chat view
+  return <Chat />;
 };
 
 export default Index;
