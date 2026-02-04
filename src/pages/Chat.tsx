@@ -2,21 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChats } from '@/hooks/useChats';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useFriendRequests } from '@/hooks/useFriendRequests';
 import { supabase, Message, getAvatarUrl } from '@/lib/supabase';
 import { ChatList } from '@/components/chat/ChatList';
 import { ChatView } from '@/components/chat/ChatView';
 import { AddFriend } from '@/components/friends/AddFriend';
+import { RequestsView } from '@/components/friends/RequestsView';
 import { ProfileView } from '@/components/profile/ProfileView';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageCircle, UserPlus, Loader2 } from 'lucide-react';
+import { MessageCircle, UserPlus, Loader2, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 
-type View = 'chats' | 'add-friend' | 'profile';
+type View = 'chats' | 'add-friend' | 'profile' | 'requests';
 
 const Chat: React.FC = () => {
   const { user, profile } = useAuth();
   const { chats, loading, refetch } = useChats();
   const { supported, permission, requestPermission, showNotification } = useNotifications();
+  const { pendingCount, refetch: refetchRequests } = useFriendRequests();
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [currentView, setCurrentView] = useState<View>('chats');
   const [showChatOnMobile, setShowChatOnMobile] = useState(false);
@@ -127,6 +130,12 @@ const Chat: React.FC = () => {
   const handleFriendAdded = () => {
     setCurrentView('chats');
     refetch();
+    refetchRequests();
+  };
+
+  const handleRequestAccepted = () => {
+    refetch();
+    refetchRequests();
   };
 
   if (loading) {
@@ -140,6 +149,10 @@ const Chat: React.FC = () => {
   // Non-chat views
   if (currentView === 'add-friend') {
     return <AddFriend onBack={() => setCurrentView('chats')} onFriendAdded={handleFriendAdded} />;
+  }
+
+  if (currentView === 'requests') {
+    return <RequestsView onBack={() => setCurrentView('chats')} onRequestAccepted={handleRequestAccepted} />;
   }
 
   if (currentView === 'profile') {
@@ -160,7 +173,19 @@ const Chat: React.FC = () => {
             </div>
             <h1 className="text-xl font-bold text-foreground">LinkUp</h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentView('requests')}
+              className="p-2.5 rounded-xl hover:bg-accent transition-colors relative"
+              title="Friend Requests"
+            >
+              <Bell className="w-5 h-5 text-muted-foreground" />
+              {pendingCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-destructive text-destructive-foreground text-xs font-bold rounded-full px-1 animate-pulse">
+                  {pendingCount > 9 ? '9+' : pendingCount}
+                </span>
+              )}
+            </button>
             <button
               onClick={() => setCurrentView('add-friend')}
               className="p-2.5 rounded-xl hover:bg-accent transition-colors"
