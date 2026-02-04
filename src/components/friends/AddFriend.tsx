@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useFriendRequests } from '@/hooks/useFriendRequests';
 import { supabase, Profile, getAvatarUrl } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Search, UserPlus, Loader2, Check, X, ArrowLeft } from 'lucide-react';
+import { Search, UserPlus, Loader2, X, ArrowLeft, Send } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface AddFriendProps {
@@ -16,10 +16,11 @@ interface AddFriendProps {
 
 export const AddFriend: React.FC<AddFriendProps> = ({ onBack, onFriendAdded }) => {
   const { user } = useAuth();
+  const { sendRequest } = useFriendRequests();
   const [joinCode, setJoinCode] = useState('');
   const [searching, setSearching] = useState(false);
   const [foundUser, setFoundUser] = useState<Profile | null>(null);
-  const [adding, setAdding] = useState(false);
+  const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async () => {
@@ -49,18 +50,6 @@ export const AddFriend: React.FC<AddFriendProps> = ({ onBack, onFriendAdded }) =
         return;
       }
 
-      // Check if already connected
-      const { data: existingConnection } = await supabase
-        .from('connections')
-        .select('id')
-        .or(`and(user_id.eq.${user?.id},friend_id.eq.${data.id}),and(user_id.eq.${data.id},friend_id.eq.${user?.id})`)
-        .limit(1);
-
-      if (existingConnection && existingConnection.length > 0) {
-        setError('You are already connected with this user');
-        return;
-      }
-
       setFoundUser(data as Profile);
     } catch (err) {
       setError('Failed to search. Please try again.');
@@ -69,45 +58,21 @@ export const AddFriend: React.FC<AddFriendProps> = ({ onBack, onFriendAdded }) =
     }
   };
 
-  const handleAddFriend = async () => {
+  const handleSendRequest = async () => {
     if (!foundUser || !user) return;
 
-    setAdding(true);
+    setSending(true);
 
-    try {
-      // Create bidirectional connection
-      const { error: connectionError1 } = await supabase
-        .from('connections')
-        .insert({ user_id: user.id, friend_id: foundUser.id });
+    const { error: sendError } = await sendRequest(foundUser.id);
 
-      if (connectionError1) throw connectionError1;
-
-      const { error: connectionError2 } = await supabase
-        .from('connections')
-        .insert({ user_id: foundUser.id, friend_id: user.id });
-
-      if (connectionError2) throw connectionError2;
-
-      // Create a chat between the two users
-      // Ensure consistent ordering to avoid duplicates
-      const [user1, user2] = [user.id, foundUser.id].sort();
-      
-      const { error: chatError } = await supabase
-        .from('chats')
-        .insert({ user1_id: user1, user2_id: user2 });
-
-      if (chatError && !chatError.message.includes('duplicate')) {
-        throw chatError;
-      }
-
-      toast.success(`Connected with ${foundUser.name}!`);
+    if (sendError) {
+      toast.error(sendError);
+    } else {
+      toast.success(`Friend request sent to ${foundUser.name}!`);
       onFriendAdded();
-    } catch (err) {
-      toast.error('Failed to add friend. Please try again.');
-      console.error('Error adding friend:', err);
-    } finally {
-      setAdding(false);
     }
+
+    setSending(false);
   };
 
   const handleClear = () => {
@@ -133,9 +98,9 @@ export const AddFriend: React.FC<AddFriendProps> = ({ onBack, onFriendAdded }) =
         <Card className="border-0 shadow-soft">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg">Enter Join Code</CardTitle>
-            <CardDescription>
-              Ask your friend for their Join Code to connect
-            </CardDescription>
+          <CardDescription>
+            Ask your friend for their Join Code to send a request
+          </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Search Input */}
@@ -202,16 +167,16 @@ export const AddFriend: React.FC<AddFriendProps> = ({ onBack, onFriendAdded }) =
                     Cancel
                   </Button>
                   <Button
-                    onClick={handleAddFriend}
-                    disabled={adding}
+                    onClick={handleSendRequest}
+                    disabled={sending}
                     className="flex-1 h-11 rounded-xl gradient-primary"
                   >
-                    {adding ? (
+                    {sending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <>
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        Connect
+                        <Send className="w-4 h-4 mr-2" />
+                        Send Request
                       </>
                     )}
                   </Button>

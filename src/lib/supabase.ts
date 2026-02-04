@@ -39,6 +39,19 @@ export interface Connection {
   created_at: string;
 }
 
+export interface FriendRequest {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  status: 'pending' | 'accepted' | 'declined';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FriendRequestWithSender extends FriendRequest {
+  sender: Profile;
+}
+
 export interface TypingStatus {
   id: string;
   chat_id: string;
