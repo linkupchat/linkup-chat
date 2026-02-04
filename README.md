@@ -3,6 +3,7 @@
 ## Project info
 
 **URL**: https://linkup-chat-iota.vercel.app
+
 🚀 LinkUp — Real-Time Chat App with Friend Code System
 
 LinkUp is a modern, fully real-time web chat application that allows users to connect and chat instantly using a unique Join Code system—no phone numbers or emails required to add friends.
