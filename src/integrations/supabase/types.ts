@@ -183,6 +183,7 @@ export type Database = {
           join_code: string
           last_seen: string | null
           name: string | null
+          onesignal_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -194,6 +195,7 @@ export type Database = {
           join_code: string
           last_seen?: string | null
           name?: string | null
+          onesignal_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -205,6 +207,7 @@ export type Database = {
           join_code?: string
           last_seen?: string | null
           name?: string | null
+          onesignal_id?: string | null
           updated_at?: string | null
         }
         Relationships: []
