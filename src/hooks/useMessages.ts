@@ -65,6 +65,45 @@ export const useMessages = (chatId: string | null, onNewMessage?: (message: Mess
     // Stop typing indicator
     await updateTypingStatus(false);
 
+    // Call Edge Function for push notification (fire and forget)
+    try {
+      // Fetch chat to get receiver_id
+      const { data: chat } = await supabase
+        .from('chats')
+        .select('user1_id, user2_id')
+        .eq('id', chatId)
+        .single();
+
+      if (chat) {
+        const receiverId = chat.user1_id === user.id ? chat.user2_id : chat.user1_id;
+
+        // Fetch receiver's onesignal_id and sender's name in parallel
+        const [receiverResult, senderResult] = await Promise.all([
+          supabase.from('profiles').select('onesignal_id').eq('id', receiverId).single(),
+          supabase.from('profiles').select('name').eq('id', user.id).single()
+        ]);
+
+        const receiverOnesignalId = receiverResult.data?.onesignal_id;
+        const senderName = senderResult.data?.name || 'Someone';
+
+        if (receiverOnesignalId) {
+          // Call edge function via HTTP POST
+          supabase.functions.invoke('send-notification', {
+            body: {
+              receiver_onesignal_id: receiverOnesignalId,
+              sender_name: senderName,
+              message: content.trim(),
+              chat_id: chatId,
+            },
+          }).catch((err) => {
+            console.error('[notifications] Edge function error:', err);
+          });
+        }
+      }
+    } catch (err) {
+      console.error('[notifications] Failed to send notification:', err);
+    }
+
     return { error: null, data };
   };
 
